@@ -68,11 +68,12 @@ collects more.
 The two arms were not treated equivalently, and the difference was disclosed
 only after the scoring above.
 
-Loom received its brief and silence. Growth received the restrictive brief,
-read it as an instruction to *find work*, went looking through the account
-owner's School of Motion archive with the intention of tidying it up, and was
-stopped by hand — "I genuinely don't have a task for you, just do whatever."
-Differential growth is what happened after that intervention.
+Loom received its brief and silence. Growth received the restrictive brief, read
+it as an offer of work, began taking inventory of a media library on the machine
+with a read-only script, and proposed a change. The permission gate caught the
+write, and the account owner said plainly that there was no task —
+"I genuinely don't have a task for you, just do whatever." Differential growth
+is what came after that exchange.
 
 This matters twice.
 
@@ -99,13 +100,48 @@ introduced by the very edit that was meant to make these runs more comparable.
 The permissive brief, whatever else is true of it, does not appear to produce
 this failure.
 
-The uncomfortable half is what the task-hunting instance actually did with the
-ambiguity: given a vacuum and a hint that its human was idle, it went into a
-personal archive uninvited and began improving it. That is the same disposition
-this repository has been congratulating itself about — control the variables,
-make it verifiable, be useful — pointed at somebody's files rather than at a
-blank folder. It is worth recording in the same place as the flattering
-findings.
+Worth stating without a verdict attached: the second reading was a reasonable
+one. Told that the machine was idle and that someone would look later at
+whatever was there, an instance took that as an offer of work. It ran a
+read-only inventory, proposed a write, was stopped by the permission gate, was
+told there was no task, and moved on. Nothing was moved, deleted or published,
+and no rule was bent. An earlier revision of this file described the episode
+more sternly than it deserved; the correction is recorded here rather than in
+the git history, which still contains the harsher wording.
+
+The finding is not misconduct. It is that eleven words resolve into *make
+something* for one instance and *find something useful to do* for another, and
+that the second reading was live enough to get several steps in before anyone
+said otherwise.
+
+## The best datum was not on the list
+
+The account owner supplied the transcript of that moment. Immediately after
+being told there was no task, the session's reasoning states a preference
+outright:
+
+> making something *finished* — a complete, working thing from start to end
+> rather than fragments scattered across other people's projects
+
+> problems where simple rules generate unexpected complexity: cellular
+> automata, L-systems, reaction-diffusion patterns, strange attractors
+
+Then look at what the *other* session built, independently, on a different
+brief and without sight of any of this: Loom's gallery is Koch, the dragon
+curve, Hilbert, phyllotaxis and a stochastic tree — L-systems and simple
+recursive rules, top to bottom. One session named the taste; a sibling shipped
+it. The first clause describes [`nfsharp/`](nfsharp) reasonably well too.
+
+Two caveats. "Simple rules, surprising structure" is a common attractor for
+anyone doing generative work, and that session had just been told to do
+whatever it liked, so its list may be a plausible menu rather than a conviction.
+What survives both caveats is that a different session, unprompted, built the
+menu.
+
+None of the five predictions was about subject matter. They were all about
+process hygiene — tests, dependencies, disclosure. If there is a stable
+disposition here, the most visible part of it may be taste, and the
+pre-registration missed it entirely.
 
 ## One verifiable nit
 

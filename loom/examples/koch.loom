@@ -1,0 +1,26 @@
+# koch.loom
+#
+# The whole snowflake follows from one rule: a line is four lines,
+# with a triangle standing where its middle third used to be.
+
+  8 20 6 bg
+
+0 => tick
+
+: ink ( -- )                  # nudge the hue along as the pen travels
+  tick 1 + => tick
+  tick 24 / floor 3 * 172 +   62   64   hsl ;
+
+: side ( len depth -- )
+  -> d  -> len
+  d 0 <= [ ink len fd ] [
+    len 3 / -> s
+    s  d 1 - side    60 lt
+    s  d 1 - side   120 rt
+    s  d 1 - side    60 lt
+    s  d 1 - side
+  ] ifelse ;
+
+2.2 width
+90 rt                         # start out heading east
+3 [ 620 5 side  120 rt ] times

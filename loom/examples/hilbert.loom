@@ -1,0 +1,31 @@
+# hilbert.loom
+#
+# A single line that visits all 4096 cells of a 64x64 grid,
+# never crosses itself, and keeps close things close.
+
+  200 22 7 bg
+
+0 => tick
+
+: ink ( -- )
+  tick 1 + => tick
+  tick 64 / floor 4 * 150 +   66   60   hsl ;
+
+: hilbert ( step n a -- )
+  -> a  -> n  -> step
+  n 0 > [
+    a rt
+    step  n 1 -  a neg  hilbert
+    ink step fd
+    a lt
+    step  n 1 -  a      hilbert
+    ink step fd
+    step  n 1 -  a      hilbert
+    a lt
+    ink step fd
+    step  n 1 -  a neg  hilbert
+    a rt
+  ] if ;
+
+2.6 width
+16 6 90 hilbert

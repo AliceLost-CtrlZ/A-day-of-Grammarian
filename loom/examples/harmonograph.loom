@@ -1,0 +1,24 @@
+# harmonograph.loom
+#
+# Two pendulums swinging at almost - but not quite - the same rate,
+# dragging a pen between them. The drift is the entire drawing.
+
+  270 20 6 bg
+
+11000   -> n
+0.00009 -> decay
+
+1 width
+0.8 alpha
+
+n [
+  i -> t
+  decay t *       neg exp  -> e     # the slower pendulum, fading
+  decay t * 1.4 * neg exp  -> f     # the faster one, fading sooner
+
+  t 2.000 * sin e * 330 *    t 3.033 * sin f * 250 *   +   -> x
+  t 3.000 * cos e * 330 *    t 2.021 * cos f * 250 *   +   -> y
+
+  i 380 / floor 12 * 200 +   66   60   hsl
+  i 0 = [ x y jump ] [ x y goto ] ifelse
+] times

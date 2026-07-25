@@ -1,0 +1,27 @@
+# dragon.loom
+#
+# Fold a strip of paper in half, and in half again, fourteen times.
+# Open it back out so every crease sits at a right angle. This.
+
+  240 25 6 bg
+
+0 => tick
+
+: ink ( -- )
+  tick 1 + => tick
+  tick 40 / floor 2.5 * 268 +   70   62   hsl ;
+
+: dragon ( len n s -- )
+  -> s  -> n  -> len
+  n 0 <= [ ink len fd ] [
+    len 1.41421356 / -> l
+    s 45 * rt
+    l  n 1 -   1  dragon
+    s 90 * lt
+    l  n 1 -  -1  dragon
+    s 45 * rt
+  ] ifelse ;
+
+1.9 width
+90 rt
+560 14 1 dragon

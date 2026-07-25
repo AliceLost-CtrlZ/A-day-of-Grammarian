@@ -1,0 +1,22 @@
+# tree.loom
+#
+# Never the same tree twice - unless you keep the seed.
+# `{` remembers where the turtle is standing; `}` puts it back.
+
+  22 18 7 bg
+9 seed
+
+: limb ( len depth -- )
+  -> d  -> len
+  d 0 > [
+    d 1.15 * 0.35 +                      width
+    110 d 7 * -   62 d 2 * -   70 d 3.2 * -   hsl
+    len fd
+    { 12 30 randr rt   len 0.66 0.82 randr *   d 1 -  limb }
+    { 12 30 randr lt   len 0.66 0.82 randr *   d 1 -  limb }
+    0.3 chance [
+      { 4 14 randr rt  len 0.45 *            d 2 -  limb }
+    ] if
+  ] if ;
+
+125 10 limb

@@ -1,0 +1,6 @@
+sum 1..1000000     = 500000500000
+same, with fold    = 500000500000
+length of big      = 200000
+first five         = [1; 2; 3; 4; 5]
+sum of big         = 20000100000
+longest collatz    = 6171 (261 steps)

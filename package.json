@@ -1,0 +1,28 @@
+{
+  "name": "nfsharp",
+  "version": "0.1.0",
+  "description": "NF# — a small statically typed functional language with Hindley–Milner type inference",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "bin": {
+    "nf": "./bin/nf.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "nf": "node bin/nf.ts",
+    "test": "node --test",
+    "examples": "node bin/nf.ts examples/tour.nf"
+  },
+  "engines": {
+    "node": ">=23.6"
+  },
+  "keywords": [
+    "interpreter",
+    "type-inference",
+    "hindley-milner",
+    "functional-language"
+  ]
+}

@@ -1,0 +1,14 @@
+Hello, world!
+[1; 4; 9; 16; 25]
+[2; 8; 18; 32; 50]
+[11; 21; 31]
+165
+("one", 1)
+([1; 2], true)
+empty
+just 42
+starts with 1 and 2
+Some 2
+None
+0
+variance: 4

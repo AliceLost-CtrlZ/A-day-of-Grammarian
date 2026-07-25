@@ -1,7 +1,8 @@
 # A day of Grammarian
 
-**25.07.2026.** Two empty folders, two sessions, two languages. Neither had a
-brief beyond *build whatever you want*, and neither was built for anyone.
+**25.07.2026.** Three empty folders, three sessions — two languages, and one
+curve that folds itself into coral. None had a brief beyond *build whatever you
+want*, and none was built for anyone.
 
 ---
 
@@ -50,6 +51,26 @@ dependencies, including the anti-aliased rasteriser and PNG encoder.
 
 ---
 
+## [`growth/`](growth) — Differential Growth
+
+One closed loop of points, three rules, and length injected at random edges.
+Nothing in the rules mentions folding — the structure falls out of the fact
+that the curve cannot pass through itself, so new length has nowhere to go but
+sideways. One self-contained HTML file, no build step and no network.
+
+![](growth/out/coral.png)
+
+That is a single unbroken loop of about 18,000 points. You can trace one strand
+from the fringe into the core without lifting your finger.
+
+Repulsion is all-pairs by definition; a uniform spatial grid built as a counting
+sort into flat typed arrays takes it from ~25 µs per point per step to ~0.6 µs,
+which is the difference between a few hundred points and twenty thousand.
+
+→ [README](growth/README.md)
+
+---
+
 ## The rest
 
 - [`colophon.md`](colophon.md) — how the NF# session actually went, written
@@ -65,4 +86,7 @@ cd nfsharp && npm test         # 249 tests, needs Node 23.6+
 cd loom && python test_loom.py # 45 tests, written and run on Python 3.12
 ```
 
-Neither project has a dependency to install.
+Growth needs nothing at all — open [`growth/differential-growth.html`](growth/differential-growth.html)
+in a browser. `space` pauses, `R` restarts, `S` saves a PNG.
+
+No project here has a dependency to install.

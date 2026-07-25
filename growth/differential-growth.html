@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Differential Growth</title>
+<style>
+  :root{
+    --bg:#07080b;
+    --panel:rgba(18,20,26,.82);
+    --line:rgba(255,255,255,.10);
+    --txt:#c9cdd6;
+    --dim:#6b7280;
+    --acc:#7dd3c0;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--txt); overflow:hidden;
+    font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  canvas{display:block; position:fixed; inset:0}
+
+  #ui{
+    position:fixed; top:14px; left:14px; width:250px; z-index:10;
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    box-shadow:0 8px 30px rgba(0,0,0,.5);
+  }
+  #hd{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 12px; cursor:pointer; user-select:none;
+    border-bottom:1px solid var(--line);
+  }
+  #hd b{font-weight:600; letter-spacing:.04em; font-size:11px; color:#e8eaee}
+  #hd span{color:var(--dim)}
+  #body{padding:10px 12px 12px}
+  #ui.collapsed #body{display:none}
+  #ui.collapsed #hd{border-bottom:0}
+
+  .row{margin:9px 0}
+  .row label{display:flex; justify-content:space-between; color:var(--dim); margin-bottom:4px}
+  .row label i{font-style:normal; color:var(--txt)}
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:3px;
+    background:rgba(255,255,255,.13); border-radius:2px; outline:0;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:11px; height:11px; border-radius:50%;
+    background:var(--acc); cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:11px; height:11px; border:0; border-radius:50%;
+    background:var(--acc); cursor:pointer;
+  }
+  .btns{display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:12px}
+  button{
+    font:inherit; color:var(--txt); background:rgba(255,255,255,.05);
+    border:1px solid var(--line); border-radius:6px; padding:6px 0; cursor:pointer;
+  }
+  button:hover{background:rgba(255,255,255,.10); color:#fff}
+  button.wide{grid-column:1/-1}
+  #stat{
+    margin-top:10px; padding-top:9px; border-top:1px solid var(--line);
+    color:var(--dim); display:flex; justify-content:space-between;
+  }
+  #stat b{font-weight:400; color:var(--acc)}
+  #seedwrap{display:flex; gap:6px; align-items:center; margin-top:8px}
+  #seed{
+    flex:1; min-width:0; font:inherit; color:var(--txt); padding:5px 7px;
+    background:rgba(255,255,255,.05); border:1px solid var(--line); border-radius:6px;
+  }
+  #hint{
+    position:fixed; bottom:12px; left:14px; color:#3f4650; z-index:10;
+    letter-spacing:.03em;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="ui">
+  <div id="hd"><b>DIFFERENTIAL GROWTH</b><span id="tog">–</span></div>
+  <div id="body">
+    <div class="row">
+      <label>repulsion radius <i id="v_rr"></i></label>
+      <input type="range" id="s_rr" min="4" max="40" step="0.5">
+    </div>
+    <div class="row">
+      <label>repulsion <i id="v_rf"></i></label>
+      <input type="range" id="s_rf" min="0" max="1.2" step="0.01">
+    </div>
+    <div class="row">
+      <label>attraction <i id="v_af"></i></label>
+      <input type="range" id="s_af" min="0" max="1.2" step="0.01">
+    </div>
+    <div class="row">
+      <label>alignment <i id="v_al"></i></label>
+      <input type="range" id="s_al" min="0" max="1.2" step="0.01">
+    </div>
+    <div class="row">
+      <label>split length <i id="v_sl"></i></label>
+      <input type="range" id="s_sl" min="3" max="24" step="0.5">
+    </div>
+    <div class="row">
+      <label>growth <i id="v_gr"></i></label>
+      <input type="range" id="s_gr" min="0" max="0.02" step="0.0005">
+    </div>
+    <div class="row">
+      <label>steps / frame <i id="v_sp"></i></label>
+      <input type="range" id="s_sp" min="1" max="6" step="1">
+    </div>
+    <div class="row">
+      <label>trail <i id="v_fd"></i></label>
+      <input type="range" id="s_fd" min="0.02" max="1" step="0.01">
+    </div>
+    <div class="row">
+      <label>line width <i id="v_lw"></i></label>
+      <input type="range" id="s_lw" min="0.3" max="3" step="0.1">
+    </div>
+
+    <div id="seedwrap">
+      <input id="seed" placeholder="seed" spellcheck="false">
+      <button id="b_go" style="width:64px">seed</button>
+    </div>
+
+    <div class="btns">
+      <button id="b_pause">pause</button>
+      <button id="b_reset">restart</button>
+      <button id="b_png" class="wide">save png</button>
+    </div>
+
+    <div id="stat"><span>nodes <b id="n">0</b></span><span>fps <b id="f">0</b></span></div>
+  </div>
+</div>
+
+<div id="hint">space pause &nbsp;·&nbsp; R restart &nbsp;·&nbsp; S save</div>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------
+   Differential growth.
+
+   A closed polyline. Every node obeys three rules:
+     1. attraction  - a spring toward the two neighbours it is bonded to
+     2. repulsion   - push away from ANY node within repulsionRadius
+     3. alignment   - drift toward the midpoint of its neighbours
+
+   ...and length is injected by splitting random edges. That is the whole
+   model. Rule 2 is what makes it buckle instead of inflating: the curve
+   cannot pass through itself, so new length has nowhere to go but
+   sideways, and it folds. The folds are the growth, made visible.
+
+   Rule 2 is also the expensive one - it is all-pairs by definition, so
+   the grid below is what makes 20k nodes viable.
+   ------------------------------------------------------------------ */
+
+const CFG = {
+  repulsionRadius : 13,
+  repulsionForce  : 0.62,
+  attractionForce : 0.42,
+  alignmentForce  : 0.28,
+  splitLength     : 9,
+  restRatio       : 0.55,   // spring rest length, as a fraction of splitLength
+  growthRate      : 0.004,  // nodes injected per node per step
+  maxSpeed        : 1.1,
+  steps           : 2,
+  fade            : 1,      // 1 = clear each frame; lower leaves motion trails
+  lineWidth       : 1,
+  maxNodes        : 22000,
+  startNodes      : 26,
+  startRadius     : 26
+};
+
+/* --- deterministic PRNG (mulberry32) so a seed reproduces a run --- */
+function makeRng(seedStr){
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < seedStr.length; i++){
+    h ^= seedStr.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return function(){
+    h |= 0; h = (h + 0x6D2B79F5) | 0;
+    let t = Math.imul(h ^ (h >>> 15), 1 | h);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/* --------------------------------- state --------------------------------- */
+const cvs = document.getElementById('c');
+const ctx = cvs.getContext('2d', { alpha: false });
+
+let W = 0, H = 0, DPR = 1;
+let px, py;                 // node positions
+let qx, qy;                 // back buffer for the growth pass
+let fx, fy;                 // force accumulators
+let mark;                   // per-edge "insert after this node" flags
+let n = 0;                  // live node count
+let rng = Math.random;
+let paused = false, age = 0;
+let ccx = 0, ccy = 0;       // canvas centre as of the last resize
+
+function alloc(cap){
+  px = new Float64Array(cap); py = new Float64Array(cap);
+  qx = new Float64Array(cap); qy = new Float64Array(cap);
+  fx = new Float64Array(cap); fy = new Float64Array(cap);
+  mark = new Uint8Array(cap);
+}
+
+/* -------------------------- spatial grid (counting sort) -------------------
+   A Map<hash, Array> with a closure-per-query is the obvious way to write
+   this and it is far too slow: it allocates a closure for every node every
+   step and defeats inlining of the innermost loop. Instead the grid is a
+   counting sort into three flat typed arrays, rebuilt from scratch each
+   step in O(n) with zero allocation, and queried by index range so the
+   inner loop stays monomorphic.                                            */
+let gw = 0, gh = 0, gx0 = 0, gy0 = 0;
+let gcount  = new Int32Array(0);   // bucket start offsets, length gw*gh+1
+let gcursor = new Int32Array(0);
+let gorder  = new Int32Array(0);   // node indices, bucketed
+
+function buildGrid(cell){
+  let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
+  for (let i = 0; i < n; i++){
+    const x = px[i], y = py[i];
+    if (x < minx) minx = x; if (x > maxx) maxx = x;
+    if (y < miny) miny = y; if (y > maxy) maxy = y;
+  }
+  // origin is pulled back one cell so every index is >= 1 and the 3x3
+  // neighbourhood scan can never fall outside the array.
+  gx0 = minx - cell; gy0 = miny - cell;
+  gw = Math.ceil((maxx - minx) / cell) + 3;
+  gh = Math.ceil((maxy - miny) / cell) + 3;
+
+  const cells = gw * gh;
+  if (gcount.length < cells + 1){
+    gcount  = new Int32Array(cells + 1);
+    gcursor = new Int32Array(cells + 1);
+  } else {
+    gcount.fill(0, 0, cells + 1);
+  }
+  if (gorder.length < n) gorder = new Int32Array(n * 2);
+
+  for (let i = 0; i < n; i++){
+    const cx = ((px[i] - gx0) / cell) | 0, cy = ((py[i] - gy0) / cell) | 0;
+    gcount[cy * gw + cx + 1]++;
+  }
+  for (let c = 0; c < cells; c++) gcount[c + 1] += gcount[c];
+  gcursor.set(gcount.subarray(0, cells + 1));
+  for (let i = 0; i < n; i++){
+    const cx = ((px[i] - gx0) / cell) | 0, cy = ((py[i] - gy0) / cell) | 0;
+    gorder[gcursor[cy * gw + cx]++] = i;
+  }
+}
+
+/* The pane can lay out at zero size before it is displayed, which would
+   otherwise strand the whole curve at the origin. Rather than special-case
+   that, every resize translates the existing nodes by the change in centre -
+   which keeps the drawing centred on a real window resize too. */
+function resize(){
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cvs.width  = Math.floor(W * DPR);
+  cvs.height = Math.floor(H * DPR);
+  cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
+  const nx = W / 2, ny = H / 2;
+  const dx = nx - ccx, dy = ny - ccy;
+  if (n > 0 && (dx !== 0 || dy !== 0)){
+    for (let i = 0; i < n; i++){ px[i] += dx; py[i] += dy; }
+  }
+  ccx = nx; ccy = ny;
+  // resizing the canvas clears it, so re-render immediately rather than
+  // leaving a blank frame until the next tick - which never comes if paused.
+  if (n > 0) draw(); else paint();
+}
+
+function paint(){
+  ctx.fillStyle = '#07080b';
+  ctx.fillRect(0, 0, W, H);
+}
+
+function reset(seedStr){
+  rng = seedStr ? makeRng(seedStr) : Math.random;
+  alloc(CFG.maxNodes + 512);
+  n = CFG.startNodes;
+  for (let i = 0; i < n; i++){
+    const a = (i / n) * Math.PI * 2;
+    // the jitter matters: a perfect circle is a fixed point of the rules
+    // and would inflate forever without ever choosing a direction to fold.
+    const r = CFG.startRadius + (rng() - 0.5) * 2.2;
+    px[i] = ccx + Math.cos(a) * r;
+    py[i] = ccy + Math.sin(a) * r;
+  }
+  age = 0;
+  paint();
+}
+
+/* --------------------------------- physics -------------------------------- */
+function step(){
+  const RR   = CFG.repulsionRadius;
+  const RR2  = RR * RR;
+  const REST = CFG.splitLength * CFG.restRatio;
+  const AF = CFG.attractionForce, RF = CFG.repulsionForce, AL = CFG.alignmentForce;
+
+  buildGrid(RR);
+  fx.fill(0, 0, n); fy.fill(0, 0, n);
+
+  for (let i = 0; i < n; i++){
+    const xi = px[i], yi = py[i];
+    const p = (i === 0 ? n - 1 : i - 1);
+    const q = (i === n - 1 ? 0 : i + 1);
+
+    /* 1. attraction: a spring with a rest length, NOT a constant pull.
+          A constant-magnitude pull toward both neighbours always resolves
+          inward on a curved path, so it contracts the curve forever and no
+          edge ever reaches the split threshold. Acting only past REST lets
+          repulsion set the floor on spacing and the spring set the ceiling. */
+    let ax = 0, ay = 0;
+    {
+      let dx = px[p] - xi, dy = py[p] - yi;
+      let d = Math.sqrt(dx * dx + dy * dy);
+      if (d > REST){ const t = (d - REST) / d; ax += dx * t; ay += dy * t; }
+      dx = px[q] - xi; dy = py[q] - yi;
+      d = Math.sqrt(dx * dx + dy * dy);
+      if (d > REST){ const t = (d - REST) / d; ax += dx * t; ay += dy * t; }
+    }
+
+    /* 2. alignment toward neighbour midpoint ----------------------------- */
+    const mx = (px[p] + px[q]) * 0.5 - xi;
+    const my = (py[p] + py[q]) * 0.5 - yi;
+
+    /* 3. repulsion from everything nearby, via the 3x3 cell block --------- */
+    let rx = 0, ry = 0;
+    const cx = ((xi - gx0) / RR) | 0, cy = ((yi - gy0) / RR) | 0;
+    for (let ddy = -1; ddy <= 1; ddy++){
+      const row = (cy + ddy) * gw + cx;
+      for (let ddx = -1; ddx <= 1; ddx++){
+        const c = row + ddx;
+        const e = gcount[c + 1];
+        for (let t = gcount[c]; t < e; t++){
+          const j = gorder[t];
+          if (j === i) continue;
+          const dx = xi - px[j], dy = yi - py[j];
+          const d2 = dx * dx + dy * dy;
+          if (d2 >= RR2 || d2 < 1e-12) continue;
+          const d = Math.sqrt(d2);
+          const w = (1 - d / RR) / d;   // linear falloff, folded in with 1/d
+          rx += dx * w; ry += dy * w;
+        }
+      }
+    }
+
+    fx[i] = ax * AF + mx * AL + rx * RF;
+    fy[i] = ay * AF + my * AL + ry * RF;
+  }
+
+  /* integrate, speed-clamped so a dense pileup cannot explode */
+  const MS = CFG.maxSpeed, MS2 = MS * MS;
+  for (let i = 0; i < n; i++){
+    let vx = fx[i], vy = fy[i];
+    const s2 = vx * vx + vy * vy;
+    if (s2 > MS2){ const s = MS / Math.sqrt(s2); vx *= s; vy *= s; }
+    px[i] += vx; py[i] += vy;
+  }
+
+  grow();
+  age++;
+}
+
+/* Growth has to be INJECTED, not waited for.
+   Splitting only over-long edges is a dead end: the curve settles into a
+   force balance where every edge sits under the threshold and nothing ever
+   grows again. So each step also seeds a few nodes at random edges.
+
+   Both cases are collected as flags and applied in one pass into the back
+   buffer, then the buffers are swapped - so growth costs no allocation. */
+function grow(){
+  if (n >= CFG.maxNodes) return;
+  const SL2 = CFG.splitLength * CFG.splitLength;
+
+  mark.fill(0, 0, n);
+  let count = 0;
+
+  for (let i = 0; i < n; i++){
+    const q = (i === n - 1 ? 0 : i + 1);
+    const dx = px[q] - px[i], dy = py[q] - py[i];
+    if (dx * dx + dy * dy > SL2){ mark[i] = 1; count++; }
+  }
+
+  let want = CFG.growthRate * n;
+  let inject = Math.floor(want);
+  if (rng() < want - inject) inject++;
+  for (let t = 0; t < inject; t++){
+    const i = (rng() * n) | 0;
+    if (!mark[i]){ mark[i] = 1; count++; }
+  }
+
+  if (count === 0) return;
+
+  const on = n, cap = CFG.maxNodes;
+  let k = 0;
+  for (let i = 0; i < on && k < cap; i++){
+    qx[k] = px[i]; qy[k] = py[i]; k++;
+    if (mark[i] && k < cap){
+      const q = (i === on - 1 ? 0 : i + 1);
+      qx[k] = (px[i] + px[q]) * 0.5;
+      qy[k] = (py[i] + py[q]) * 0.5;
+      k++;
+    }
+  }
+  let t;
+  t = px; px = qx; qx = t;
+  t = py; py = qy; qy = t;
+  n = k;
+}
+
+/* --------------------------------- render --------------------------------
+   Draw the curve itself, crisply, on a cleared canvas.
+
+   The tempting alternative - never clear, lay the curve down at low alpha
+   so the image accumulates the whole run - does not work for this system.
+   The curve sweeps through its own interior thousands of times, so the
+   inside saturates to a flat disc and the structure is buried under its
+   own paint. All the interest is in where the ribbon is NOW.
+
+   Colour runs by RADIUS, not along the curve. Hue-along-the-curve seems
+   like the obvious choice and looks like confetti: the ribbon wanders, so
+   neighbouring strands land on unrelated hues and the eye reads noise.
+   Radius puts adjacent strands on adjacent hues, so they blend - and it
+   happens to encode the history, since the core is the oldest material and
+   the fringe is the newest.
+
+   A radial gradient as the stroke style does this in ONE stroke of one
+   path, instead of setting a colour per segment 20k times per frame.     */
+function draw(){
+  ctx.fillStyle = `rgba(7,8,11,${CFG.fade})`;
+  ctx.fillRect(0, 0, W, H);
+  if (n < 2) return;
+
+  let sx = 0, sy = 0;
+  for (let i = 0; i < n; i++){ sx += px[i]; sy += py[i]; }
+  const cx = sx / n, cy = sy / n;
+
+  let mr = 0;
+  for (let i = 0; i < n; i++){
+    const dx = px[i] - cx, dy = py[i] - cy;
+    const d2 = dx * dx + dy * dy;
+    if (d2 > mr) mr = d2;
+  }
+  mr = Math.sqrt(mr) || 1;
+
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, mr);
+  g.addColorStop(0.00, 'hsl(300,46%,54%)');   // core - oldest
+  g.addColorStop(0.55, 'hsl(232,60%,64%)');
+  g.addColorStop(1.00, 'hsl(168,64%,60%)');   // fringe - newest
+  ctx.strokeStyle = g;
+  ctx.lineWidth = CFG.lineWidth;
+
+  ctx.beginPath();
+  ctx.moveTo(px[0], py[0]);
+  for (let i = 1; i < n; i++) ctx.lineTo(px[i], py[i]);
+  ctx.closePath();
+  ctx.stroke();
+}
+
+/* ---------------------------------- loop ---------------------------------- */
+let last = performance.now(), acc = 0, frames = 0;
+const elN = document.getElementById('n'), elF = document.getElementById('f');
+
+function loop(now){
+  requestAnimationFrame(loop);
+  if (!paused){
+    for (let s = 0; s < CFG.steps; s++) step();
+    draw();
+  }
+  frames++; acc += now - last; last = now;
+  if (acc > 500){
+    elF.textContent = Math.round(frames * 1000 / acc);
+    elN.textContent = n;
+    frames = 0; acc = 0;
+  }
+}
+
+/* ----------------------------------- ui ----------------------------------- */
+const bind = (id, key, fmt) => {
+  const s = document.getElementById('s_' + id), v = document.getElementById('v_' + id);
+  s.value = CFG[key];
+  v.textContent = fmt(CFG[key]);
+  s.addEventListener('input', () => {
+    CFG[key] = parseFloat(s.value);
+    v.textContent = fmt(CFG[key]);
+  });
+};
+const f1 = x => x.toFixed(1), f2 = x => x.toFixed(2),
+      f0 = x => String(x | 0), f4 = x => x.toFixed(4);
+
+bind('rr','repulsionRadius',f1);
+bind('rf','repulsionForce',f2);
+bind('af','attractionForce',f2);
+bind('al','alignmentForce',f2);
+bind('sl','splitLength',f1);
+bind('gr','growthRate',f4);
+bind('sp','steps',f0);
+bind('fd','fade',f2);
+bind('lw','lineWidth',f1);
+
+const ui = document.getElementById('ui'), tog = document.getElementById('tog');
+document.getElementById('hd').addEventListener('click', () => {
+  ui.classList.toggle('collapsed');
+  tog.textContent = ui.classList.contains('collapsed') ? '+' : '–';
+});
+
+const bp = document.getElementById('b_pause');
+const doPause = () => { paused = !paused; bp.textContent = paused ? 'resume' : 'pause'; };
+const doReset = () => reset(document.getElementById('seed').value.trim() || null);
+const doPng   = () => {
+  const a = document.createElement('a');
+  a.download = 'growth-' + Date.now() + '.png';
+  a.href = cvs.toDataURL('image/png');
+  a.click();
+};
+
+bp.addEventListener('click', doPause);
+document.getElementById('b_reset').addEventListener('click', doReset);
+document.getElementById('b_png').addEventListener('click', doPng);
+document.getElementById('b_go').addEventListener('click', doReset);
+document.getElementById('seed').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doReset();
+});
+
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space'){ e.preventDefault(); doPause(); }
+  if (e.key === 'r' || e.key === 'R') doReset();
+  if (e.key === 's' || e.key === 'S') doPng();
+});
+
+addEventListener('resize', resize);
+
+/* --------------------------------- start --------------------------------- */
+resize();
+reset(null);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

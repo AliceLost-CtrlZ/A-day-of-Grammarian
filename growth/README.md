@@ -1,0 +1,99 @@
+# Differential Growth
+
+![](out/coral.png)
+
+One closed loop of points. Every point obeys three rules:
+
+1. **attraction** — a spring toward its two neighbours on the loop
+2. **repulsion** — push away from *any* point within a radius
+3. **alignment** — drift toward the midpoint of its neighbours
+
+and a few points are inserted at random edges each step. That is the entire
+model. Nothing in it mentions folding, lobes, or coral.
+
+The structure comes out of rule 2. The curve cannot pass through itself, so
+injected length has nowhere to go but sideways, and it buckles. The image
+above is a single unbroken loop of about 18,000 points — you can trace one
+strand from the fringe all the way into the core and never lift your finger.
+
+## Running it
+
+Open `differential-growth.html` in a browser. There is no build step, no
+install, and no network access — it is one self-contained file.
+
+| key | |
+| --- | --- |
+| `space` | pause / resume |
+| `R` | restart |
+| `S` | save a PNG |
+
+Typing a seed makes a run reproducible; the image above is seed `coral`.
+
+## The parameters worth playing with
+
+**repulsion radius** is the one to reach for first — it sets how far apart
+strands sit, so it controls the coarseness of the entire texture. Small values
+give a dense fine weave, large values give fat lazy folds.
+
+**growth** is the rate length is injected. Low is slow and orderly; high
+buckles violently and asymmetrically, because the curve is forced to absorb
+length faster than it can relax.
+
+**alignment** is a smoothing term. Turn it down for something more chaotic and
+less circular — it is most of what keeps the blob round.
+
+## Implementation
+
+Repulsion is all-pairs by definition, which is the whole performance problem.
+It is reduced to a 3×3 cell scan by a uniform spatial grid, rebuilt every step.
+
+The grid is a counting sort into three flat `Int32Array`s rather than the more
+obvious `Map<hash, Array>` with a callback per query. That rewrite was worth
+about **40×** — from ~25 µs per point per step down to ~0.6 µs — which is the
+difference between a few hundred points and twenty thousand. Most of the win is
+not the data structure but the absence of a closure allocated per point per
+step, and an inner loop that stays monomorphic.
+
+Growth writes into a back buffer and swaps, so inserting points costs no
+allocation. Positions are `Float64Array` throughout.
+
+At roughly 20,000 points a step is ~12 ms, so it stays interactive right up to
+the point where it fills the screen.
+
+## What went wrong
+
+Two bugs, both of which looked correct until they were measured.
+
+**The curve froze at 26 points and never grew.** Attraction was a
+constant-magnitude pull toward both neighbours. On a curved path those two
+pulls always resolve *inward*, so together with alignment — which also pulls
+inward, toward the centre of curvature — two of the three rules were
+contractions and nothing ever stretched an edge past the split threshold. It
+sat at a hard fixed point: mean edge length identical to fifteen decimal places
+after 300 steps. Attraction had to become a spring with a rest length, acting
+only when stretched, so that repulsion sets the floor on spacing and the spring
+sets the ceiling.
+
+The related lesson is that growth in this model has to be *injected*. Splitting
+only over-long edges is a dead end, because the system happily settles into a
+balance where no edge is over-long.
+
+**The first renderer painted the structure out of existence.** It never cleared
+the canvas, laying the curve down at low alpha each frame so the image would
+accumulate the whole run. But this curve sweeps through its own interior
+thousands of times, so the interior saturated into a flat purple disc with
+every fold buried under its own paint. Only the outer fringe survived. The
+render had to become: clear each frame, draw where the ribbon is *now*.
+
+A third, smaller one: colour originally ran *along* the curve, which looks like
+confetti — the ribbon wanders, so neighbouring strands land on unrelated hues
+and the eye reads noise instead of structure. Colour by radius instead and
+adjacent strands land on adjacent hues, which both blends cleanly and encodes
+the history, since the core is the oldest material and the fringe the newest.
+It is drawn as a radial gradient, so it costs one stroke rather than a colour
+change per segment.
+
+## Disclosure
+
+Every file in this directory was written by Claude in one session on
+25.07.2026, with no brief beyond *build whatever you want*.

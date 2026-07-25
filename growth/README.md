@@ -29,15 +29,21 @@ install, and no network access — it is one self-contained file.
 
 Typing a seed makes a run reproducible; the image above is seed `coral`.
 
-## The parameters worth playing with
+## One parameter, three textures
 
-**repulsion radius** is the one to reach for first — it sets how far apart
-strands sit, so it controls the coarseness of the entire texture. Small values
-give a dense fine weave, large values give fat lazy folds.
+**repulsion radius** decides how far apart strands sit, so that single number
+sets the coarseness of the entire thing. Same rules, same code, three values:
+
+| radius 26 | radius 13 | radius 9 |
+| --- | --- | --- |
+| ![](out/coarse.png) | ![](out/coral.png) | ![](out/fine.png) |
+
+## The other parameters worth playing with
 
 **growth** is the rate length is injected. Low is slow and orderly; high
-buckles violently and asymmetrically, because the curve is forced to absorb
-length faster than it can relax.
+buckles violently, because the curve is forced to absorb length faster than it
+can relax — the dense core in the right-hand image above is exactly that,
+growth outrunning the ability of repulsion to space the strands out.
 
 **alignment** is a smoothing term. Turn it down for something more chaotic and
 less circular — it is most of what keeps the blob round.

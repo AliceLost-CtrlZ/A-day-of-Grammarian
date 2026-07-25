@@ -34,11 +34,20 @@ Typing a seed makes a run reproducible; the image above is seed `coral`.
 **repulsion radius** decides how far apart strands sit, so that single number
 sets the coarseness of the entire thing. Same rules, same code, three values:
 
-| radius 26 | radius 13 | radius 9 |
+| radius 40 | radius 25 *(default)* | radius 13 |
 | --- | --- | --- |
 | ![](out/coarse.png) | ![](out/coral.png) | ![](out/fine.png) |
 
 ## The other parameters worth playing with
+
+**trail** is where the entire look comes from, and it is worth understanding
+because nothing in the model knows anything about lighting or depth. It sets
+how much of the background is repainted each frame. At 1 the canvas clears
+hard and you get a bare wire. The default is 0.02 — the canvas still clears,
+but slowly, with a half-life of about thirty frames, so a strand leaves a
+decaying ghost where it used to be. Every strand ends up sitting on its own
+soft dark halo and the eye reads that as relief. It looks carved. It is a
+one-line consequence of not quite clearing the canvas.
 
 **growth** is the rate length is injected. Low is slow and orderly; high
 buckles violently, because the curve is forced to absorb length faster than it
@@ -89,7 +98,16 @@ the canvas, laying the curve down at low alpha each frame so the image would
 accumulate the whole run. But this curve sweeps through its own interior
 thousands of times, so the interior saturated into a flat purple disc with
 every fold buried under its own paint. Only the outer fringe survived. The
-render had to become: clear each frame, draw where the ribbon is *now*.
+render was rewritten to clear hard every frame and draw where the ribbon is
+*now*, which was correct and looked flat.
+
+The coda is that the first idea was right and was one parameter away from
+working. Accumulating *forever* saturates; accumulating with a slow decay is
+the relief the default now ships with. The bug was never the concept, it was
+that nothing ever faded — and that only became obvious once the fade was
+exposed as a slider and somebody dragged it to the bottom of its range. Worth
+remembering the next time a good idea gets thrown out because its first
+version was unusable.
 
 A third, smaller one: colour originally ran *along* the curve, which looks like
 confetti — the ribbon wanders, so neighbouring strands land on unrelated hues

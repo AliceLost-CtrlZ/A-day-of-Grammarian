@@ -60,8 +60,11 @@ sideways. One self-contained HTML file, no build step and no network.
 
 ![](growth/out/coral.png)
 
-That is a single unbroken loop of about 18,000 points. You can trace one strand
-from the fringe into the core without lifting your finger.
+That is a single unbroken loop of about eight thousand points. You can trace one
+strand from the fringe into the core without lifting your finger. The relief is
+not lighting — nothing in the model knows what depth is. The canvas simply
+clears a little slower than the curve moves, so each strand sits on the fading
+ghost of where it used to be.
 
 Repulsion is all-pairs by definition; a uniform spatial grid built as a counting
 sort into flat typed arrays takes it from ~25 µs per point per step to ~0.6 µs,

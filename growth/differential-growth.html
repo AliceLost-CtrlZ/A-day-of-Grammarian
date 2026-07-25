@@ -112,7 +112,7 @@
     </div>
     <div class="row">
       <label>trail <i id="v_fd"></i></label>
-      <input type="range" id="s_fd" min="0.02" max="1" step="0.01">
+      <input type="range" id="s_fd" min="0.01" max="1" step="0.01">
     </div>
     <div class="row">
       <label>line width <i id="v_lw"></i></label>
@@ -157,17 +157,18 @@
    ------------------------------------------------------------------ */
 
 const CFG = {
-  repulsionRadius : 13,
-  repulsionForce  : 0.62,
-  attractionForce : 0.42,
+  repulsionRadius : 25,
+  repulsionForce  : 0.75,
+  attractionForce : 0.64,
   alignmentForce  : 0.28,
   splitLength     : 9,
   restRatio       : 0.55,   // spring rest length, as a fraction of splitLength
   growthRate      : 0.004,  // nodes injected per node per step
   maxSpeed        : 1.1,
   steps           : 2,
-  fade            : 1,      // 1 = clear each frame; lower leaves motion trails
-  lineWidth       : 1,
+  fade            : 0.02,   // see draw(): this low value is what produces the
+                            // relief. 1 clears hard and draws flat.
+  lineWidth       : 1.4,
   maxNodes        : 22000,
   startNodes      : 26,
   startRadius     : 26
@@ -420,13 +421,19 @@ function grow(){
 }
 
 /* --------------------------------- render --------------------------------
-   Draw the curve itself, crisply, on a cleared canvas.
+   Draw the curve on a canvas that is cleared by `fade` per frame.
 
-   The tempting alternative - never clear, lay the curve down at low alpha
-   so the image accumulates the whole run - does not work for this system.
-   The curve sweeps through its own interior thousands of times, so the
-   inside saturates to a flat disc and the structure is buried under its
-   own paint. All the interest is in where the ribbon is NOW.
+   `fade` is the whole look. Never clearing at all (fade = 0) does not work:
+   the curve sweeps through its own interior thousands of times, so the
+   inside saturates into a flat disc with every fold buried under its own
+   paint. Clearing hard (fade = 1) works but draws flat, a bare wire.
+
+   The default sits just above zero. The canvas still clears, but slowly -
+   a half-life around thirty frames - so a strand leaves a decaying ghost
+   where it used to be instead of accumulating forever. Every strand ends
+   up sitting on its own soft dark halo, and the eye reads that as depth.
+   The thing appears carved rather than drawn, and nothing in the model
+   knows anything about lighting.
 
    Colour runs by RADIUS, not along the curve. Hue-along-the-curve seems
    like the obvious choice and looks like confetti: the ribbon wanders, so

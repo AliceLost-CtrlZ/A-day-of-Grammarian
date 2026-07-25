@@ -1,3 +1,9 @@
 node_modules/
 *.log
 .DS_Store
+
+__pycache__/
+*.py[cod]
+
+# Editor/agent workspace settings, not project config.
+.claude/

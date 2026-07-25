@@ -1,0 +1,27 @@
+# sierpinski.loom
+#
+# Take out the middle. Do it again to whatever is left.
+# The limit has no area at all and an edge without end.
+
+  16 22 8 bg
+
+0 => tick
+
+: unit ( s -- )               # one filled triangle, cornered on the turtle
+  -> s
+  tick 1 + => tick
+  tick 0.42 * 18 +   72   46 tick 0.02 * +   hsl
+  begin-fill  3 [ s fd 120 rt ] times  end-fill ;
+
+: gasket ( s d -- )
+  -> d  -> s
+  d 0 <= [ s unit ] [
+    s 2 / -> h
+    {                      h  d 1 -  gasket }     # this corner
+    { h hop                h  d 1 -  gasket }     # along the first edge
+    { 60 rt h hop 60 lt    h  d 1 -  gasket }     # along the third
+  ] ifelse ;
+
+pu                            # the outlines would only get in the way
+90 rt
+960 6 gasket

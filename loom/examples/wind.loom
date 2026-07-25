@@ -1,0 +1,25 @@
+# wind.loom
+#
+# A field with a firm opinion about which way things ought to go,
+# and four hundred particles holding no opinion whatsoever.
+
+  212 30 9 bg
+7 seed
+
+: flow ( x y -- angle )
+  -> y  -> x
+  x 0.42 * sin 62 *
+  y 0.55 * cos 48 *      +
+  x y + 0.11 * sin 40 *  + ;
+
+420 [
+  -560 560 randr -> sx
+  -560 560 randr -> sy
+  sx sy jump
+
+  sx sy + 0.055 * 196 +   58   52 sy 0.02 * +   hsl
+  0.28 0.8 randr  alpha
+  0.7 2.4 randr   width
+
+  55 [ xy flow face  9 fd ] times
+] times

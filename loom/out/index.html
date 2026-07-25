@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Loom</title><style>
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #0c0c10; color: #d7d7e0;
+  font: 15px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+header { padding: 4rem 2rem 1rem; max-width: 62rem; margin: 0 auto; }
+h1 { font-size: 1.6rem; margin: 0 0 .4rem; letter-spacing: .18em;
+  text-transform: uppercase; color: #f2f2f7; font-weight: 500; }
+header p { margin: 0; color: #7d7d92; max-width: 40rem; }
+main { display: grid; gap: 2rem; padding: 2rem; max-width: 62rem; margin: 0 auto;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+figure { margin: 0; border: 1px solid #22222c; border-radius: 6px;
+  overflow: hidden; background: #0f0f14; }
+figure img { display: block; width: 100%; height: auto; }
+figcaption { padding: .9rem 1.1rem 1.1rem; border-top: 1px solid #22222c; }
+.name { color: #f2f2f7; letter-spacing: .06em; }
+.note { color: #7d7d92; font-size: .82rem; margin-top: .35rem;
+  white-space: pre-wrap; }
+.stat { color: #4d4d5e; font-size: .75rem; margin-top: .6rem; }
+footer { color: #4d4d5e; text-align: center; padding: 2rem 2rem 4rem;
+  font-size: .8rem; }
+</style></head><body><header><h1>Loom</h1><p>A tiny concatenative language for drawing. Every picture below is a text file of stack words steering a turtle. Sources live in <code>examples/</code>.</p></header><main><figure><img src="dragon.svg" alt="dragon.loom" loading="lazy"><figcaption><div class="name">dragon.loom</div><div class="note">Fold a strip of paper in half, and in half again, fourteen times.
+Open it back out so every crease sits at a right angle. This.</div><div class="stat">16,384 primitives</div></figcaption></figure><figure><img src="harmonograph.svg" alt="harmonograph.loom" loading="lazy"><figcaption><div class="name">harmonograph.loom</div><div class="note">Two pendulums swinging at almost - but not quite - the same rate,
+dragging a pen between them. The drift is the entire drawing.</div><div class="stat">10,999 primitives</div></figcaption></figure><figure><img src="hilbert.svg" alt="hilbert.loom" loading="lazy"><figcaption><div class="name">hilbert.loom</div><div class="note">A single line that visits all 4096 cells of a 64x64 grid,
+never crosses itself, and keeps close things close.</div><div class="stat">4,095 primitives</div></figcaption></figure><figure><img src="koch.svg" alt="koch.loom" loading="lazy"><figcaption><div class="name">koch.loom</div><div class="note">The whole snowflake follows from one rule: a line is four lines,
+with a triangle standing where its middle third used to be.</div><div class="stat">3,072 primitives</div></figcaption></figure><figure><img src="phyllotaxis.svg" alt="phyllotaxis.loom" loading="lazy"><figcaption><div class="name">phyllotaxis.loom</div><div class="note">137.507764 degrees. Turn by that much between each seed and nothing
+ever lines up, because the golden ratio is the number hardest to
+approximate with a fraction. Sunflowers found this out first.</div><div class="stat">2,400 primitives</div></figcaption></figure><figure><img src="sierpinski.svg" alt="sierpinski.loom" loading="lazy"><figcaption><div class="name">sierpinski.loom</div><div class="note">Take out the middle. Do it again to whatever is left.
+The limit has no area at all and an edge without end.</div><div class="stat">729 primitives</div></figcaption></figure><figure><img src="tree.svg" alt="tree.loom" loading="lazy"><figcaption><div class="name">tree.loom</div><div class="note">Never the same tree twice - unless you keep the seed.
+`{` remembers where the turtle is standing; `}` puts it back.</div><div class="stat">1,570 primitives</div></figcaption></figure><figure><img src="wind.svg" alt="wind.loom" loading="lazy"><figcaption><div class="name">wind.loom</div><div class="note">A field with a firm opinion about which way things ought to go,
+and four hundred particles holding no opinion whatsoever.</div><div class="stat">23,100 primitives</div></figcaption></figure></main><footer>rendered by loom.py</footer></body></html>

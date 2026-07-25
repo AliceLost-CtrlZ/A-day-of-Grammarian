@@ -1,0 +1,17 @@
+# phyllotaxis.loom
+#
+# 137.507764 degrees. Turn by that much between each seed and nothing
+# ever lines up, because the golden ratio is the number hardest to
+# approximate with a fraction. Sunflowers found this out first.
+
+  260 18 7 bg
+
+2400 [
+  i -> k
+  k 137.507764 *  -> a
+  k sqrt 20 *     -> r
+
+  a sin r *   a cos r *   jump
+  k 0.13 * 268 +   70   62 k 0.006 * +   hsl
+  k 0.0022 * 4.5 +   dot
+] times
